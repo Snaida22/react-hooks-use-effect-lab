@@ -1,15 +1,33 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 
 function Question({ question, onAnswered }) {
   const [timeRemaining, setTimeRemaining] = useState(10);
 
   // add useEffect code
 
-  function handleAnswer(isCorrect) {
+  useEffect(() => {
+    if (timeRemaining === 0) {
+      setTimeRemaining(10);
+      onAnswered(false);
+      return; 
+    }
+
+    //  a timeout to run after 1 second
+    const timerId = setTimeout(() => {
+      // decreasing the time remaining
+      setTimeRemaining((timeRemaining) => timeRemaining - 1);
+    }, 1000);
+
+    // a clean up function to clean up after the timeout function
+    return function () {
+      clearTimeout(timerId);
+    };
+  }, [timeRemaining, onAnswered]);
+  // a function on every time the timeRemaining changes
+  function handleCorrectAnswer(isCorrect) {
     setTimeRemaining(10);
     onAnswered(isCorrect);
   }
-
   const { id, prompt, answers, correctIndex } = question;
 
   return (
@@ -19,7 +37,7 @@ function Question({ question, onAnswered }) {
       {answers.map((answer, index) => {
         const isCorrect = index === correctIndex;
         return (
-          <button key={answer} onClick={() => handleAnswer(isCorrect)}>
+          <button key={answer} onClick={() => handleCorrectAnswer(isCorrect)}>
             {answer}
           </button>
         );
